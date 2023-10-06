@@ -1,0 +1,7 @@
+#ignorefile
+**/.vscode/**
+**/bin/**
+**/obj/**
+.DS_Store
+X509-MongCert.pem
+appsettings.Development.json
