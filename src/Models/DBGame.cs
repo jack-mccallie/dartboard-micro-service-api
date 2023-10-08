@@ -7,15 +7,13 @@ namespace src.Models;
 public class DBGame 
 {
     public ObjectId Id { get; set; }
-    public String Winner {get; set;} = null!;
-    public String HomeTeam {get; set;} = null!;
-    public String AwayTeam {get; set;} = null!;
-    public int? HomeTeamScore {get; set;}
-    public int? AwayTeamScore {get; set;}
-    
-    [BsonElement("DateInputted")]
-    public DateTime? DateOfEntry {get; set;}
+    public required List<string> winningListInOrder { get; set; }
 
-    [BsonElement("Date")]
-    public DateTime? GameDate {get; set;}
+    public required List<string> players { get; set; }
+    
+    [BsonElement("dateEntered")]
+    public String? DateOfEntry {get; set;}
+
+    [BsonElement("datePlayed")]
+    public String? GameDate {get; set;}
 }
