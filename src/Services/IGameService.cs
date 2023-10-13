@@ -11,5 +11,6 @@ public interface IGameService
     Task<PostGameDTO> PostGame(PostGameDTO gameDTO);
     Task<IEnumerable<DBGame>> GetGamesMongoDB(String database, String collection);
     Task<PlayerRecordDTO> GetPlayerRecord(String playerName);
+    Task<List<KeyValuePair<String, int>>> GetPlayerGameWins(List<String> players);
 
 }

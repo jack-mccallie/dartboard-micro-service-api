@@ -91,4 +91,29 @@ public class GameService : IGameService
 
         return playerRecord;
     }
+
+    public async Task<List<KeyValuePair<String, int>>> GetPlayerGameWins(List<String> players)
+    {
+        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults");
+
+
+        dartboardGames = dartboardGames.Where(game => {
+                foreach(String player in players) {
+                    if (game.players.Count() != players.Count() || !game.players.Contains(player)) return false;
+                }
+                return true;
+            });
+        List<KeyValuePair<String, int>> output = new List<KeyValuePair<String, int>>(); 
+
+        if (!dartboardGames.Any()) return null;
+
+        foreach (String player in players) {
+            output.Add(new KeyValuePair<String, int>(
+                player, 
+                dartboardGames.Where(game => game.winningListInOrder[0] == player).Count())
+                );
+        }
+
+        return output;
+    }
 }

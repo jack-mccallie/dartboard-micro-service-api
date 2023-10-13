@@ -50,6 +50,18 @@ public class RecordedGamesController : ControllerBase
         return playerRecord;
     }
 
+    /// <summary>
+    /// This will return the number of wins a each player has when playing a game against the 
+    /// other provided plaeyer
+    /// </summary>
+    /// <param name="players"></param>
+    /// <returns>List of key value pairs</returns>
+    [HttpGet("GameWins")]
+    public async Task<List<KeyValuePair<string, int>>> GetPlayerGameWins([FromQuery] List<String> players) 
+    {
+        return await _gameService.GetPlayerGameWins(players);
+    }
+
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Game>> GetGame(int id) 
