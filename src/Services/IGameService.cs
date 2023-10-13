@@ -1,10 +1,8 @@
-using games_recording_service.Models;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 using src.DTO;
 using src.Models;
 
-namespace games_recording_service.Services;
+namespace src.Services;
 
 public interface IGameService
 {
@@ -12,5 +10,6 @@ public interface IGameService
     Task<Game?> GetGame(int id);
     Task<PostGameDTO> PostGame(PostGameDTO gameDTO);
     Task<IEnumerable<DBGame>> GetGamesMongoDB(String database, String collection);
+    Task<PlayerRecordDTO> GetPlayerRecord(String playerName);
 
 }

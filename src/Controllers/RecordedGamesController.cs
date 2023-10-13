@@ -1,21 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using src.DTO;
 using Microsoft.AspNetCore.Mvc;
-using games_recording_service.Services;
-using games_recording_service.Models;
-using MongoDB.Bson;
 using src.Models;
+using src.Services;
 
-namespace games_recording_service.Controllers;
+namespace src.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class RecordedGamesController : ControllerBase
 {
     private readonly IGameService _gameService;
+
     public RecordedGamesController(IGameService gameService)
     {
         _gameService = gameService;
@@ -36,12 +31,26 @@ public class RecordedGamesController : ControllerBase
     }
     // GET: api/RecordedGames/{database}/{collection}
     [HttpGet("{database}/{collection}")]
-    public async Task<IEnumerable<DBGame>> GetGamesMongoDB(String database, String collection){
+    public async Task<IEnumerable<DBGame>> GetGamesMongoDB(String database, String collection)
+    {
         HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");
         return await _gameService.GetGamesMongoDB(database, collection);
     }
 
-    // GET: api/RecordedGames/{id}
+    /// <summary>
+    /// This will return a players overall record and a list of their head to
+    /// head records with individual players
+    /// </summary>
+    /// <param name="playerName"></param>
+    /// <returns></returns>
+    [HttpGet("PlayerRecord")]
+    public async Task<PlayerRecordDTO> GetPlayerRecord(String playerName)
+    {
+        PlayerRecordDTO playerRecord = await _gameService.GetPlayerRecord(playerName);
+        return playerRecord;
+    }
+
+
     [HttpGet("{id}")]
     public async Task<ActionResult<Game>> GetGame(int id) 
     {

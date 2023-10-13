@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace games_recording_service.Models;
+namespace src.Models;
 
 public class Game {
     [Key]

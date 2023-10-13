@@ -1,9 +1,7 @@
-using games_recording_service.Models;
+using src.Models;
 using Microsoft.EntityFrameworkCore;
-using games_recording_service.Services;
-using Microsoft.Extensions.Configuration;
+using src.Services;
 using src.Dao;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

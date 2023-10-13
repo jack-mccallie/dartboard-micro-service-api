@@ -1,15 +1,11 @@
 
-using games_recording_service.Models;
+using src.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using System.Runtime.CompilerServices;
 using src.DTO;
 using src.Dao;
-using MongoDB.Bson;
-using src.Models;
-using System.Reflection.Metadata;
 
-namespace games_recording_service.Services;
+namespace src.Services;
 
 
 public class GameService : IGameService
@@ -55,5 +51,44 @@ public class GameService : IGameService
         await _gameDBContext.SaveChangesAsync();
 
         return updatedPostGameDto;
+    }
+
+    public async Task<PlayerRecordDTO> GetPlayerRecord(String playerName)
+    {
+        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults");
+
+        IEnumerable<DBGame> gamesWithPlayer = dartboardGames.Where(game => game.players.Contains(playerName));
+
+        int wins = gamesWithPlayer.Where(game => game.winningListInOrder[0] == playerName).Count();
+        int totalGames = gamesWithPlayer.Count();
+        int losses = totalGames - wins;
+
+        Dictionary<String, HeadToHeadRecord> HeadToHeadDictionary = new Dictionary<string, HeadToHeadRecord>();
+
+        HashSet<String> allPlayers = gamesWithPlayer.Where(game => game.players.Count() == 2)
+
+                                                    .SelectMany(game => game.players).ToHashSet();
+        allPlayers.Remove(playerName);
+
+        IEnumerable<HeadToHeadRecord> headToHeadRecords = allPlayers.Select(player => {
+            IEnumerable<DBGame> gamesAgainstOpponent = gamesWithPlayer.Where(game => game.players.Count() == 2 && game.players.First() == player);
+            HeadToHeadRecord output = new HeadToHeadRecord(
+                player, 
+                gamesAgainstOpponent.Where(game => game.winningListInOrder.FirstOrDefault() == playerName).Count(), 
+                gamesAgainstOpponent.Count()
+                );
+            return output;
+        });
+
+
+        PlayerRecordDTO playerRecord = new PlayerRecordDTO() {
+            PlayerName = playerName,
+            Wins = wins,
+            Losses = losses,
+            TotalGames = totalGames,
+            HeadToHeadRecords = headToHeadRecords
+        };
+
+        return playerRecord;
     }
 }
