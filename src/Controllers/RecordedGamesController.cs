@@ -47,7 +47,24 @@ public class RecordedGamesController : ControllerBase
     public async Task<PlayerRecordDTO> GetPlayerRecord(String playerName)
     {
         PlayerRecordDTO playerRecord = await _gameService.GetPlayerRecord(playerName);
+        double playerScore = await _gameService.GetPlayerScore(playerName);
+        playerRecord.PlayerScore = playerScore;
         return playerRecord;
+    }
+
+    /// <summary>
+    /// This will return the total score a player has earned
+    /// It is equal to totalPointsEarned^2 / totalPossiblepoints
+    /// 2 points for 2 player win
+    /// 3 points for 3 player win
+    /// </summary>
+    /// <param name="playerName"></param>
+    /// <returns></returns>
+    [HttpGet("PlayerScore")]
+    public async Task<double> GetPlayerScore(String playerName)
+    {
+        double playerScore = await _gameService.GetPlayerScore(playerName);
+        return playerScore;
     }
 
     /// <summary>
@@ -76,10 +93,12 @@ public class RecordedGamesController : ControllerBase
     }
 
     // POST: api/RecordedGames/
-    [HttpPost]
-    public async Task <ActionResult<Game>> PostGame(PostGameDTO gameDTO) 
-    {
-        PostGameDTO updatedPostGameDto = await _gameService.PostGame(gameDTO);
-        return CreatedAtAction(nameof(GetGame), new { id = updatedPostGameDto.Date }, updatedPostGameDto);
-    }
+    // [HttpPost]
+    // public async Task <ActionResult<Game>> PostGame(PostGameDTO gameDTO) 
+    // {
+    //     PostGameDTO updatedPostGameDto = await _gameService.PostGame(gameDTO);
+    //     return CreatedAtAction(nameof(GetGame), new { id = updatedPostGameDto.Date }, updatedPostGameDto);
+    // }
+
+
 }

@@ -13,4 +13,6 @@ public interface IGameService
     Task<PlayerRecordDTO> GetPlayerRecord(String playerName);
     Task<List<KeyValuePair<String, int>>> GetPlayerGameWins(List<String> players);
 
+    Task<double> GetPlayerScore(String playerName);
+
 }

@@ -5,10 +5,11 @@ namespace src.DTO;
 public class PlayerRecordDTO
 {
     public String PlayerName { get; set; } = null!;
-    public int Wins { get; set; }
-    public int Losses { get; set; }
-    public int TotalGames { get; set; }
-
+    public double PlayerScore { get; set; }
+    public int TwoPlayerWins { get; set; }
+    public int TwoPlayerTotalGames { get; set; }
+    public int ThreePlayerWins { get; set; }
+    public int ThreePlayerTotalGames { get; set; }
     public IEnumerable<HeadToHeadRecord> HeadToHeadRecords { get; set; } = null!;
 
 }
