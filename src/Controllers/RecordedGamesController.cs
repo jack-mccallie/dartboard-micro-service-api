@@ -15,26 +15,13 @@ public class RecordedGamesController : ControllerBase
     {
         _gameService = gameService;
     }
-    
-    // GET: api/RecordedGames
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Game>>> GetGames() {
-        
-        var games = await _gameService.GetGames();
 
-        // Check if there are any games
-        if (games.Value == null || !games.Value.Any()) {
-            return NotFound();
-        }
-
-        return games;
-    }
     // GET: api/RecordedGames/{database}/{collection}
     [HttpGet("{database}/{collection}")]
-    public async Task<IEnumerable<DBGame>> GetGamesMongoDB(String database, String collection)
+    public async Task<IEnumerable<Game>> GetGames(String database, String collection)
     {
         HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-        return await _gameService.GetGamesMongoDB(database, collection);
+        return await _gameService.GetGames(database, collection);
     }
 
     /// <summary>
@@ -50,21 +37,6 @@ public class RecordedGamesController : ControllerBase
         double playerScore = await _gameService.GetPlayerScore(playerName);
         playerRecord.PlayerScore = playerScore;
         return playerRecord;
-    }
-
-    /// <summary>
-    /// This will return the total score a player has earned
-    /// It is equal to totalPointsEarned^2 / totalPossiblepoints
-    /// 2 points for 2 player win
-    /// 3 points for 3 player win
-    /// </summary>
-    /// <param name="playerName"></param>
-    /// <returns></returns>
-    [HttpGet("PlayerScore")]
-    public async Task<double> GetPlayerScore(String playerName)
-    {
-        double playerScore = await _gameService.GetPlayerScore(playerName);
-        return playerScore;
     }
 
     /// <summary>
@@ -93,12 +65,10 @@ public class RecordedGamesController : ControllerBase
     }
 
     // POST: api/RecordedGames/
-    // [HttpPost]
-    // public async Task <ActionResult<Game>> PostGame(PostGameDTO gameDTO) 
-    // {
-    //     PostGameDTO updatedPostGameDto = await _gameService.PostGame(gameDTO);
-    //     return CreatedAtAction(nameof(GetGame), new { id = updatedPostGameDto.Date }, updatedPostGameDto);
-    // }
-
-
+    [HttpPost]
+    public async Task <ActionResult<Game>> PostGame(PostGameDTO gameDTO) 
+    {
+        await _gameService.PostGame(gameDTO);
+        return Ok();
+    }
 }

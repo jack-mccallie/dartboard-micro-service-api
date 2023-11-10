@@ -3,13 +3,21 @@ using System.ComponentModel.DataAnnotations;
 namespace src.Models;
 
 public class Game {
-    [Key]
-    public int Id { get; set; }
-    public String Winner {get; set;} = null!;
-    public String HomeTeam {get; set;} = null!;
-    public String AwayTeam {get; set;} = null!;
-    public int HomeTeamScore {get; set;}
-    public int AwayTeamScore {get; set;}
-    public DateTime DateOfEntry;
+    public String Id { get; set; }
+
+    // This is the list of players in order of who won
+    // currently there is no logic for second place so the 
+    // only important thing is the winning player is the first
+    // in the list
+    public IEnumerable<String> WinningListInOrder { get; set; }
+    public String Winner { get; set; }
+    public DateTime DateOfEntry { get; set; }
+
+    public Game(DBGame dbGame) {
+        Id = dbGame.Id.ToString();
+        WinningListInOrder = dbGame.WinningListInOrder;
+        Winner = dbGame.WinningListInOrder.First();
+        DateOfEntry = dbGame.DateEntered;
+    }
 
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using src.DTO;
 using src.Dao;
+using MongoDB.Driver;
 
 namespace src.Services;
 
@@ -17,14 +18,11 @@ public class GameService : IGameService
         _gameDBContext = gameContext;
     }
 
-    public async Task<IEnumerable<DBGame>> GetGamesMongoDB(String database, String collection) {
+    public async Task<IEnumerable<Game>> GetGames(String database, String collection) {
         
-        return await _dataBaseDao.GetGames(database, collection);
-    }
-
-    public async Task<ActionResult<IEnumerable<Game>>> GetGames() {
-        
-        return await _gameDBContext.Games.ToListAsync();
+        return (await _dataBaseDao.GetGames(database, collection)).Select(game => {
+            return new Game(game);
+        });
     }
 
     public async Task<Game?> GetGame(int id)
@@ -33,24 +31,9 @@ public class GameService : IGameService
         return game;
     }
 
-    public async Task<PostGameDTO> PostGame(PostGameDTO gameDTO) 
+    public async Task PostGame(PostGameDTO gameDTO) 
     {
-        gameDTO.Date = DateTime.UtcNow;
-        Game inputGame = new Game {
-            HomeTeam = gameDTO.HomeTeam.ToUpper(),
-            AwayTeam = gameDTO.AwayTeam.ToUpper(),
-            Winner = gameDTO.HomeScore > gameDTO.AwayScore ? gameDTO.HomeTeam.ToUpper() : gameDTO.AwayTeam.ToUpper(),
-            HomeTeamScore = gameDTO.HomeScore,
-            AwayTeamScore = gameDTO.AwayScore,
-            DateOfEntry = DateTime.UtcNow
-        };
-
-        PostGameDTO updatedPostGameDto = new PostGameDTO(inputGame);
-
-        _gameDBContext.Games.Add(inputGame);
-        await _gameDBContext.SaveChangesAsync();
-
-        return updatedPostGameDto;
+        await _dataBaseDao.PostGame(gameDTO);
     }
 
     public async Task<PlayerRecordDTO> GetPlayerRecord(String playerName)
@@ -68,7 +51,7 @@ public class GameService : IGameService
 
         dartboardGames = dartboardGames.Where(game => {
                 foreach(String player in players) {
-                    if (game.players.Count() != players.Count() || !game.players.Contains(player)) return false;
+                    if (game.WinningListInOrder.Count() != players.Count() || !game.WinningListInOrder.Contains(player)) return false;
                 }
                 return true;
             });
@@ -79,7 +62,7 @@ public class GameService : IGameService
         foreach (String player in players) {
             output.Add(new KeyValuePair<String, int>(
                 player, 
-                dartboardGames.Where(game => game.winningListInOrder[0] == player).Count())
+                dartboardGames.Where(game => game.WinningListInOrder.FirstOrDefault() == player).Count())
                 );
         }
 
@@ -102,33 +85,33 @@ public class GameService : IGameService
 
     public PlayerRecordDTO calculatePlayerRecordDTO(IEnumerable<DBGame> dartboardGames, String playerName)
     {
-        IEnumerable<DBGame> gamesWithPlayer = dartboardGames.Where(game => game.players.Contains(playerName));
+        IEnumerable<DBGame> gamesWithPlayer = dartboardGames.Where(game => game.WinningListInOrder.Contains(playerName));
 
         // Calculating the two player game stats
-        int twoPlayerWinswins = gamesWithPlayer.Where(game => game.winningListInOrder[0] == playerName && game.players.Count() == 2).Count();
-        int twoPlayertotalGames = gamesWithPlayer.Where(game => game.players.Count() == 2).Count();
+        int twoPlayerWinswins = gamesWithPlayer.Where(game => game.WinningListInOrder.FirstOrDefault() == playerName && game.WinningListInOrder.Count() == 2).Count();
+        int twoPlayertotalGames = gamesWithPlayer.Where(game => game.WinningListInOrder.Count() == 2).Count();
         int twoPlayerlosses = twoPlayertotalGames - twoPlayerWinswins;
 
         // Calculating the the three player game stats
-        int threePlayerWins = gamesWithPlayer.Where(game => game.winningListInOrder[0] == playerName && game.players.Count() == 3).Count();
-        int threePlayerTotalGames = gamesWithPlayer.Where(game => game.players.Count() == 3).Count();
+        int threePlayerWins = gamesWithPlayer.Where(game => game.WinningListInOrder.FirstOrDefault() == playerName && game.WinningListInOrder.Count() == 3).Count();
+        int threePlayerTotalGames = gamesWithPlayer.Where(game => game.WinningListInOrder.Count() == 3).Count();
 
         Dictionary<String, HeadToHeadRecord> HeadToHeadDictionary = new Dictionary<string, HeadToHeadRecord>();
 
         // Creating a set of the opponents a player has faced
-        HashSet<String> allPlayers = gamesWithPlayer.Where(game => game.players.Count() == 2)
+        HashSet<String> allPlayers = gamesWithPlayer.Where(game => game.WinningListInOrder.Count() == 2)
 
-                                                    .SelectMany(game => game.players).ToHashSet();
+                                                    .SelectMany(game => game.WinningListInOrder).ToHashSet();
         allPlayers.Remove(playerName);
 
         
         // Creating an object that has the head to head record with every 
         // opponent a player has faced
         IEnumerable<HeadToHeadRecord> headToHeadRecords = allPlayers.Select(player => {
-            IEnumerable<DBGame> gamesAgainstOpponent = gamesWithPlayer.Where(game => game.players.Count() == 2 && game.players.First() == player);
+            IEnumerable<DBGame> gamesAgainstOpponent = gamesWithPlayer.Where(game => game.WinningListInOrder.Count() == 2 && game.WinningListInOrder.First() == player);
             HeadToHeadRecord output = new HeadToHeadRecord(
                 player, 
-                gamesAgainstOpponent.Where(game => game.winningListInOrder.FirstOrDefault() == playerName).Count(), 
+                gamesAgainstOpponent.Where(game => game.WinningListInOrder.FirstOrDefault() == playerName).Count(), 
                 gamesAgainstOpponent.Count()
                 );
             return output;
