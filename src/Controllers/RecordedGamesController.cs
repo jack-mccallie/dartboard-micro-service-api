@@ -71,4 +71,15 @@ public class RecordedGamesController : ControllerBase
         await _gameService.PostGame(gameDTO);
         return Ok();
     }
+
+    
+    [HttpDelete]
+    public async Task<ActionResult> DeleteGame(String gameId)
+    {
+        Boolean result = await _gameService.DeleteGame(gameId);
+        
+        if (result) return new StatusCodeResult(202);
+        else return NotFound();
+    }
+
 }

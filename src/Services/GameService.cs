@@ -80,6 +80,13 @@ public class GameService : IGameService
 
     }
 
+    public async Task<Boolean> DeleteGame(String gameId)
+    {
+       Boolean result = await _dataBaseDao.DeleteGame(gameId);
+
+       return result;
+    }
+
     // Business logic helper functions
     // These functions should never call any other function in this class
 

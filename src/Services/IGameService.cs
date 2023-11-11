@@ -14,4 +14,6 @@ public interface IGameService
 
     Task<double> GetPlayerScore(String playerName);
 
+    Task<Boolean> DeleteGame(String gameId);
+
 }

@@ -35,8 +35,8 @@ public class MongoDatabaseDao : IDatabaseDao
     {
 
         var documents = _client.GetDatabase(_database).GetCollection<DBGame>(_collection) ?? throw new Exception("ERROR: Collection is null");
-        
-        var filter = Builders<DBGame>.Filter.Eq(game => game.Id.ToString(), gameId);
+        ObjectId objectId = ObjectId.Parse(gameId);
+        var filter = Builders<DBGame>.Filter.Eq(game => game.Id, objectId);
 
         // delete the person
         var gameDeleteResult = await documents.DeleteOneAsync(filter);
