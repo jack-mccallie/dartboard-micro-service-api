@@ -95,7 +95,7 @@ public class GameService : IGameService
         IEnumerable<DBGame> gamesWithPlayer = dartboardGames.Where(game => game.WinningListInOrder.Contains(playerName));
 
         // Calculating the two player game stats
-        int twoPlayerWinswins = gamesWithPlayer.Where(game => game.WinningListInOrder.FirstOrDefault() == playerName && game.WinningListInOrder.Count() == 2).Count();
+        int twoPlayerWinswins = gamesWithPlayer.Where(game => (game.WinningListInOrder.FirstOrDefault() == playerName) && (game.WinningListInOrder.Count() == 2)).Count();
         int twoPlayertotalGames = gamesWithPlayer.Where(game => game.WinningListInOrder.Count() == 2).Count();
         int twoPlayerlosses = twoPlayertotalGames - twoPlayerWinswins;
 
@@ -115,10 +115,10 @@ public class GameService : IGameService
         // Creating an object that has the head to head record with every 
         // opponent a player has faced
         IEnumerable<HeadToHeadRecord> headToHeadRecords = allPlayers.Select(player => {
-            IEnumerable<DBGame> gamesAgainstOpponent = gamesWithPlayer.Where(game => game.WinningListInOrder.Count() == 2 && game.WinningListInOrder.First() == player);
+            IEnumerable<DBGame> gamesAgainstOpponent = gamesWithPlayer.Where(game => game.WinningListInOrder.Count() == 2 && game.WinningListInOrder.Contains(player));
             HeadToHeadRecord output = new HeadToHeadRecord(
                 player, 
-                gamesAgainstOpponent.Where(game => game.WinningListInOrder.FirstOrDefault() == playerName).Count(), 
+                gamesAgainstOpponent.Where(game => game.WinningListInOrder.First() == playerName).Count(), 
                 gamesAgainstOpponent.Count()
                 );
             return output;
