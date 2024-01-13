@@ -45,6 +45,33 @@ public class GameService : IGameService
         return playerRecord;
     }
 
+    public async Task<IEnumerable<PlayerRecordDTO>> GetPlayersRanked(IEnumerable<String> players)
+    {
+        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults");
+
+        if(players.Count() > 0) {
+            IEnumerable<DBGame> dartboardGamesWithCorrectPlayers = dartboardGames.Where(game => {
+                bool samePlayers = players.All(x => game.WinningListInOrder.Contains(x) && players.Count(a => a == x) == players.Count(b => b == x));
+                return samePlayers;
+            });
+
+            IEnumerable<PlayerRecordDTO> playerRecordDTOs = players.Select(player => calculatePlayerRecordDTO(dartboardGamesWithCorrectPlayers, player));
+
+            IEnumerable<PlayerRecordDTO> rankings = playerRecordDTOs.OrderBy(record => record.PlayerScore).Reverse();
+
+            return rankings;
+        }
+       
+        HashSet<String> allPlayers = dartboardGames.Select(game => game.WinningListInOrder).SelectMany(x => x).ToHashSet();
+
+        IEnumerable<PlayerRecordDTO> allPlayerRecordDTOs = allPlayers.Select(player => calculatePlayerRecordDTO(dartboardGames, player));
+
+        IEnumerable<PlayerRecordDTO> rankingsAllPlayers = allPlayerRecordDTOs.OrderBy(record => record.PlayerScore).Reverse();
+
+        return rankingsAllPlayers;
+        
+    }
+
     public async Task<List<KeyValuePair<String, int>>> GetPlayerGameWins(List<String> players)
     {
         IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults");
@@ -69,17 +96,6 @@ public class GameService : IGameService
         return output;
     }
 
-    public async Task<double> GetPlayerScore(String playerName)
-    {
-        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults");
-        PlayerRecordDTO playerRecordDTO = calculatePlayerRecordDTO(dartboardGames, playerName);
-        int totalEarnedPoints = (playerRecordDTO.TwoPlayerWins * 2) + (playerRecordDTO.ThreePlayerWins * 3);
-        int totalPossiblePoints = playerRecordDTO.TwoPlayerTotalGames + playerRecordDTO.ThreePlayerTotalGames;
-
-        return Math.Pow(totalEarnedPoints, 2) / totalPossiblePoints;
-
-    }
-
     public async Task<Boolean> DeleteGame(String gameId)
     {
        Boolean result = await _dataBaseDao.DeleteGame(gameId);
@@ -95,9 +111,9 @@ public class GameService : IGameService
         IEnumerable<DBGame> gamesWithPlayer = dartboardGames.Where(game => game.WinningListInOrder.Contains(playerName));
 
         // Calculating the two player game stats
-        int twoPlayerWinswins = gamesWithPlayer.Where(game => (game.WinningListInOrder.FirstOrDefault() == playerName) && (game.WinningListInOrder.Count() == 2)).Count();
-        int twoPlayertotalGames = gamesWithPlayer.Where(game => game.WinningListInOrder.Count() == 2).Count();
-        int twoPlayerlosses = twoPlayertotalGames - twoPlayerWinswins;
+        int twoPlayerWins = gamesWithPlayer.Where(game => (game.WinningListInOrder.FirstOrDefault() == playerName) && (game.WinningListInOrder.Count() == 2)).Count();
+        int twoPlayerTotalGames = gamesWithPlayer.Where(game => game.WinningListInOrder.Count() == 2).Count();
+        int twoPlayerlosses = twoPlayerTotalGames - twoPlayerWins;
 
         // Calculating the the three player game stats
         int threePlayerWins = gamesWithPlayer.Where(game => game.WinningListInOrder.FirstOrDefault() == playerName && game.WinningListInOrder.Count() == 3).Count();
@@ -110,6 +126,9 @@ public class GameService : IGameService
 
                                                     .SelectMany(game => game.WinningListInOrder).ToHashSet();
         allPlayers.Remove(playerName);
+
+        int totalEarnedPoints = (twoPlayerWins * 2) + (threePlayerWins * 3);
+        int totalPossiblePoints = (twoPlayerTotalGames*2) +(threePlayerTotalGames*3);
 
         
         // Creating an object that has the head to head record with every 
@@ -125,13 +144,17 @@ public class GameService : IGameService
         });
 
 
+
         PlayerRecordDTO playerRecord = new PlayerRecordDTO() {
             PlayerName = playerName,
-            TwoPlayerWins = twoPlayerWinswins,
-            TwoPlayerTotalGames = twoPlayertotalGames,
+            TwoPlayerWins = twoPlayerWins,
+            TwoPlayerTotalGames = twoPlayerTotalGames,
             ThreePlayerWins = threePlayerWins,
             ThreePlayerTotalGames = threePlayerTotalGames,
+            PossiblePoints = totalPossiblePoints,
+            PlayerScore = totalEarnedPoints,
             HeadToHeadRecords = headToHeadRecords
+        
         };
         return playerRecord;
     }

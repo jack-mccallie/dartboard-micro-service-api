@@ -34,9 +34,19 @@ public class RecordedGamesController : ControllerBase
     public async Task<PlayerRecordDTO> GetPlayerRecord(String playerName)
     {
         PlayerRecordDTO playerRecord = await _gameService.GetPlayerRecord(playerName);
-        double playerScore = await _gameService.GetPlayerScore(playerName);
-        playerRecord.PlayerScore = playerScore;
         return playerRecord;
+    }
+
+    /// <summary>
+    /// This will return an ordered list of player records to fill out a leaderboard
+    /// </summary>
+    /// <param name="players"></param>
+    /// <returns>Ordered list of player records based on score</returns>
+    [HttpGet("PlayersRanked")]
+    public async Task<IEnumerable<PlayerRecordDTO>> GetPlayersRanked([FromQuery] IEnumerable<String> players)
+    {
+        IEnumerable<PlayerRecordDTO> playersRanked = await _gameService.GetPlayersRanked(players);
+        return playersRanked;
     }
 
     /// <summary>

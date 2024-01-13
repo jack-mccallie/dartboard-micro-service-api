@@ -12,8 +12,7 @@ public interface IGameService
     Task<PlayerRecordDTO> GetPlayerRecord(String playerName);
     Task<List<KeyValuePair<String, int>>> GetPlayerGameWins(List<String> players);
 
-    Task<double> GetPlayerScore(String playerName);
-
+    Task<IEnumerable<PlayerRecordDTO>> GetPlayersRanked(IEnumerable<String> players);
     Task<Boolean> DeleteGame(String gameId);
 
 }

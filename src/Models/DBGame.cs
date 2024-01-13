@@ -15,8 +15,12 @@ public class DBGame
     [BsonElement("dateEntered")]
     public DateTime DateEntered {get; set;}
 
+    //301, 501, cricket
+    public String Type { get; set; }
+
     public DBGame(PostGameDTO postGameDTO) {
         DateEntered = DateTime.UtcNow;
         WinningListInOrder = postGameDTO.WinningListInOrder;
+        Type = postGameDTO.Type;
     }
 }
