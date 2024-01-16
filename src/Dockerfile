@@ -9,7 +9,7 @@ COPY . .
 RUN dotnet publish -c Release -o out
 
 # Stage 2: Run the .NET Core application on your Raspberry Pi
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime
 WORKDIR /app
 
 # Copy the published files from the build stage
