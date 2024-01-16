@@ -18,10 +18,10 @@ public class RecordedGamesController : ControllerBase
 
     // GET: api/RecordedGames/{database}/{collection}
     [HttpGet("{database}/{collection}")]
-    public async Task<IEnumerable<Game>> GetGames(String database, String collection)
+    public async Task<IEnumerable<Game>> GetGames(String database, String collection, int season)
     {
         HttpContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-        return await _gameService.GetGames(database, collection);
+        return await _gameService.GetGames(database, collection, season);
     }
 
     /// <summary>
@@ -29,11 +29,12 @@ public class RecordedGamesController : ControllerBase
     /// head records with individual players
     /// </summary>
     /// <param name="playerName"></param>
+    /// <param name="season"></param>
     /// <returns></returns>
     [HttpGet("PlayerRecord")]
-    public async Task<PlayerRecordDTO> GetPlayerRecord(String playerName)
+    public async Task<PlayerRecordDTO> GetPlayerRecord(String playerName, int season)
     {
-        PlayerRecordDTO playerRecord = await _gameService.GetPlayerRecord(playerName);
+        PlayerRecordDTO playerRecord = await _gameService.GetPlayerRecord(playerName, season);
         return playerRecord;
     }
 
@@ -41,11 +42,12 @@ public class RecordedGamesController : ControllerBase
     /// This will return an ordered list of player records to fill out a leaderboard
     /// </summary>
     /// <param name="players"></param>
+    /// <param name="season"></param>
     /// <returns>Ordered list of player records based on score</returns>
     [HttpGet("PlayersRanked")]
-    public async Task<IEnumerable<PlayerRecordDTO>> GetPlayersRanked([FromQuery] IEnumerable<String> players)
+    public async Task<IEnumerable<PlayerRecordDTO>> GetPlayersRanked([FromQuery] IEnumerable<String> players, int season)
     {
-        IEnumerable<PlayerRecordDTO> playersRanked = await _gameService.GetPlayersRanked(players);
+        IEnumerable<PlayerRecordDTO> playersRanked = await _gameService.GetPlayersRanked(players, season);
         return playersRanked;
     }
 
@@ -54,11 +56,12 @@ public class RecordedGamesController : ControllerBase
     /// other provided plaeyer
     /// </summary>
     /// <param name="players"></param>
+    /// <param name="season"></param>
     /// <returns>List of key value pairs</returns>
     [HttpGet("GameWins")]
-    public async Task<List<KeyValuePair<string, int>>> GetPlayerGameWins([FromQuery] List<String> players) 
+    public async Task<List<KeyValuePair<string, int>>> GetPlayerGameWins([FromQuery] List<String> players, int season) 
     {
-        return await _gameService.GetPlayerGameWins(players);
+        return await _gameService.GetPlayerGameWins(players, season);
     }
 
 

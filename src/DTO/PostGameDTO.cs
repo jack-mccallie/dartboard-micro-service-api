@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using src.Models;
 
 namespace src.DTO;
@@ -9,6 +10,8 @@ public class PostGameDTO
 
     public required String Type { get; set; }
 
+    public int Season { get; set; }
+
     public PostGameDTO() 
     {
     }
@@ -16,6 +19,7 @@ public class PostGameDTO
     public PostGameDTO(Game game) {
         WinningListInOrder = game.WinningListInOrder;
         Type = game.Type;
+        Season = game.Season;
     }
 
 }

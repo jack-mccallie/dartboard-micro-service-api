@@ -18,9 +18,9 @@ public class GameService : IGameService
         _gameDBContext = gameContext;
     }
 
-    public async Task<IEnumerable<Game>> GetGames(String database, String collection) {
+    public async Task<IEnumerable<Game>> GetGames(String database, String collection, int season) {
         
-        return (await _dataBaseDao.GetGames(database, collection)).Select(game => {
+        return (await _dataBaseDao.GetGames(database, collection, season)).Select(game => {
             return new Game(game);
         });
     }
@@ -36,18 +36,18 @@ public class GameService : IGameService
         await _dataBaseDao.PostGame(gameDTO);
     }
 
-    public async Task<PlayerRecordDTO> GetPlayerRecord(String playerName)
+    public async Task<PlayerRecordDTO> GetPlayerRecord(String playerName, int season)
     {
-        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults");
+        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults", season);
 
         PlayerRecordDTO playerRecord = calculatePlayerRecordDTO(dartboardGames, playerName);
 
         return playerRecord;
     }
 
-    public async Task<IEnumerable<PlayerRecordDTO>> GetPlayersRanked(IEnumerable<String> players)
+    public async Task<IEnumerable<PlayerRecordDTO>> GetPlayersRanked(IEnumerable<String> players, int season)
     {
-        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults");
+        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults", season);
 
         if(players.Count() > 0) {
             IEnumerable<DBGame> dartboardGamesWithCorrectPlayers = dartboardGames.Where(game => {
@@ -72,9 +72,9 @@ public class GameService : IGameService
         
     }
 
-    public async Task<List<KeyValuePair<String, int>>> GetPlayerGameWins(List<String> players)
+    public async Task<List<KeyValuePair<String, int>>> GetPlayerGameWins(List<String> players, int season)
     {
-        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults");
+        IEnumerable<DBGame> dartboardGames = await _dataBaseDao.GetGames("Dartboard", "GameResults", season);
 
         dartboardGames = dartboardGames.Where(game => {
                 foreach(String player in players) {

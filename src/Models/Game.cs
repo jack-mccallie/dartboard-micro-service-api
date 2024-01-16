@@ -13,6 +13,7 @@ public class Game {
     public String Winner { get; set; }
     public String Type { get; set; }
     public DateTime DateOfEntry { get; set; }
+    public int Season { get; set; }
 
     public Game(DBGame dbGame) {
         Id = dbGame.Id.ToString();
@@ -20,6 +21,7 @@ public class Game {
         Winner = dbGame.WinningListInOrder.First();
         Type = dbGame.Type;
         DateOfEntry = dbGame.DateEntered;
+        Season = dbGame.Season;
     }
 
 }

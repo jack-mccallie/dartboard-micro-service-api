@@ -18,9 +18,12 @@ public class DBGame
     //301, 501, cricket
     public String Type { get; set; }
 
+    public int Season { get; set; }
+
     public DBGame(PostGameDTO postGameDTO) {
         DateEntered = DateTime.UtcNow;
         WinningListInOrder = postGameDTO.WinningListInOrder;
         Type = postGameDTO.Type;
+        Season = postGameDTO.Season;
     }
 }

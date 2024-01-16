@@ -15,12 +15,19 @@ public class MongoDatabaseDao : IDatabaseDao
     }
 
     // returns all games in the database
-    public async Task<IEnumerable<DBGame>> GetGames(String database, String collection) {
+    public async Task<IEnumerable<DBGame>> GetGames(String database, String collection, int season) {
 
         var documents = _client.GetDatabase(database).GetCollection<DBGame>(collection) ?? throw new Exception("ERROR: Collection is null");
 
-        var filter = Builders<BsonDocument>.Filter.Empty;
-        return await documents.Find(x => true).ToListAsync();
+        if(season > 0) {
+            var filter = Builders<DBGame>.Filter.Where(x => x.Season == season);
+            var results =  await documents.Find(filter).ToListAsync();
+            return results;
+        }
+        else {
+            var results =  await documents.Find(x => true).ToListAsync();
+            return results;
+        }
     }
 
     public async Task PostGame(PostGameDTO postGameDTO)
